@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>💘 Pop the Hearts</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Josefin Sans', sans-serif;
+      background: radial-gradient(circle at center, #ffdde1 0%, #ee9ca7 100%);
+      animation: bgMove 10s infinite alternate ease-in-out;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    h1 {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-size: 2.2rem;
+      text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.3);
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #fff, 0 0 20px #ff7eb3; }
+      to { text-shadow: 0 0 20px #fff, 0 0 30px #ff758c; }
+    }
+
+    #counter {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+      color: #fff;
+      background: rgba(0,0,0,0.3);
+      padding: 6px 14px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    .item {
+      position: absolute;
+      width: 60px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .item.pop {
+      transform: scale(1.6) rotate(20deg);
+      opacity: 0;
+      filter: blur(2px);
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: sparkle 3s linear infinite;
+    }
+
+    @keyframes sparkle {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) scale(0.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Pop 5 Hearts to Continue</h1>
+  <div id="counter">Popped: 0 / 5</div>
+
+  <script>
+    const heartSrc = "https://cdn-icons-png.flaticon.com/512/833/833472.png";
+    const dustbinSrc = "https://cdn-icons-png.flaticon.com/512/679/679725.png";
+
+    const totalHearts = 5;
+    let popped = 0;
+
+    function createSparkle() {
+      const sparkle = document.createElement("div");
+      sparkle.className = "sparkle";
+      sparkle.style.left = Math.random() * 100 + "vw";
+      sparkle.style.top = "100vh";
+      sparkle.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 5000);
+    }
+
+    function createItem(src, isHeart) {
+      const item = document.createElement("img");
+      item.src = src;
+      item.className = "item";
+      const x = Math.random() * (window.innerWidth - 60);
+      let y = window.innerHeight;
+      item.style.left = `${x}px`;
+      item.style.top = `${y}px`;
+      document.body.appendChild(item);
+
+      const speed = Math.random() * 1.5 + 1;
+
+      function float() {
+        if (item.classList.contains("pop")) return;
+        y -= speed;
+        item.style.top = `${y}px`;
+        if (y < -60) {
+          item.remove();
+        } else {
+          requestAnimationFrame(float);
+        }
+      }
+
+      float();
+
+      item.addEventListener("click", () => {
+        if (item.classList.contains("pop")) return;
+
+        if (isHeart) {
+          item.classList.add("pop");
+          popped++;
+          document.getElementById("counter").textContent = `Popped: ${popped} / ${totalHearts}`;
+          setTimeout(() => item.remove(), 400);
+          if (popped === totalHearts) {
+            setTimeout(() => {
+              window.location.href = "phase5.html";
+            }, 800);
+          }
+        } else {
+          alert("Oops! That's a dustbin 😅 Try the heart!");
+        }
+      });
+    }
+
+    // Create hearts and dustbins
+    for (let i = 0; i < totalHearts; i++) {
+      setTimeout(() => createItem(heartSrc, true), i * 800);
+      setTimeout(() => createItem(dustbinSrc, false), i * 1000 + 400); // delay dustbins
+    }
+
+    setInterval(createSparkle, 300);
+  </script>
+</body>
+</html>
